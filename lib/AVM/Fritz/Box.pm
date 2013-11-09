@@ -32,7 +32,7 @@ AVM::Fritz::Box - Perl interface to AVM's FRITZ!Box
 
   fritzbox new_feature => sub {
       # do some magic stuff...
-  }; # <-- DONT FORGET THE SEMICOLON!
+  };
 
 =head1 DESCRIPTION
 
@@ -61,7 +61,7 @@ The URL of the FRITZ!Box is stored in the public C<$FRITZBOX> variable and
 thus can be modified if e.g. the FRITZ!Box is only reachable under a certain
 IP or other domain. Simply define
 
-  $AVM::Fritz::Box::FRITZBOX = 'your.special.url'; # w/o slash, but protocol
+  $AVM::Fritz::Box::FRITZBOX = 'http://box.url'; # w/o slash, but protocol
 
 =cut
 
@@ -78,7 +78,7 @@ and a default user agent (see L<perldoc/LWP::UserAgent>).
 
 =cut
 
-sub new($$) {
+sub new($) {
 	my $class = shift;
 
 	my $self = {
@@ -91,10 +91,20 @@ sub new($$) {
 
 =item get($url[, $params])
 
-Sends a GET request to the FRITZ!Box. The SID is set implicitly and must not
-be specified additionally. Note, that the SID C<0000000000000000> is always
-valid. As a side effect the expiration time and the status of the last
-response will be set.
+Sends a GET request to the FRITZ!Box. The SID is set implicitly (if defined)
+and must not be specified additionally. Note, that the SID C<0000000000000000>
+is always valid. As a side effect the request time and the status of the last
+response will be set. Beside the URL some parameters can be passed optionally
+as hash reference. Consider the following example:
+
+  $self->get("cgi-bin/webcm", { getpage => '../html/de/menus/menu2.html' })
+
+which will result in the following URL (assuming that C<$FRITZBOX> was not
+altered):
+
+  http://fritz.box/cgi-bin/webcm?sid=0123456789abcdef&getpage=../html/de/menus/menu2.html
+
+The method always returns a C<HTTP::Response> object.
 
 =cut
 
@@ -107,7 +117,7 @@ sub get($$;$) {
 	my $url = "$FRITZBOX/$path?" . join '&',
 			map { $_ . '=' . $params->{$_} } keys $params;
 
-	$self->{expires} = time + 10 * 60;
+	$self->{reqtime} = time;
 	my $response = $self->{agent}->get($url);
 	$self->{status} = $response->status_line();
 
@@ -126,10 +136,10 @@ sub post($$;$) {
 	my $path = shift;
 	my $params = shift || {};
 
-	$params->{sid} = $self->{sid};
+	$params->{sid} = $self->{sid} if defined $self->{sid};
 	my $url = "$FRITZBOX/$path";
 
-	$self->{expires} = time + 10 * 60;
+	$self->{reqtime} = time;
 	my $response = $self->{agent}->post($url, $params);
 	$self->{status} = $response->status_line();
 
@@ -140,6 +150,8 @@ sub post($$;$) {
 
 Returns the status line of the last request.
 
+=back
+
 =cut
 
 sub status($) {
@@ -148,18 +160,39 @@ sub status($) {
 	return $self->{status};
 }
 
+=head2 API
+
+The current API only consists of the C<fritzbox> subroutine and is imported
+via the C<api> tag as shown in the SYNOPSIS section.
+
+=over 4
 
 =item fritzbox($subname, $subref)
 
-This function is only provided to extend the API of the FRITZ!Box easily. To
-add a new feature simply create a new module, e.g. C<FB::Example> where the
-functionality is supplied as follows:
+This function is only provided to extend the API of the FRITZ!Box easily by
+adding the given subroutine reference with the specified name to the namespace
+C<AVM::Fritz::Box>. Within the method the reference to itself can be used as
+is usual.
 
   use AVM::Fritz::Box ':api';
 
   fritzbox new_feature => sub {
-      # do your thing!
-  };
+      $self = shift;
+
+      # check SID...
+      warn unless defined $self->{sid};
+
+      # send request...
+      $resp = $self->get("cgi-bin/webcm", $params);
+
+      # print request time and status line
+      say 'sent at ', join ':', (localtime $self->{reqtime})[2, 1, 0];
+      say $self->status()," eq ", $resp->status_line();
+
+      # do stuff...
+
+      return $resp->is_success();
+  }; # <-- DONT FORGET THE SEMICOLON!
 
 =cut
 
@@ -205,8 +238,8 @@ functions
 
 =item *
 
-only define fritzbox function if api shoud be included and define the methods
-only if the api is not imported
+only define fritzbox function if API should be included and define the methods
+only if the API is not imported (?)
 
 =back
 
