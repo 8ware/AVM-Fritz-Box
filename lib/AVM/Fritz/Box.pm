@@ -76,8 +76,6 @@ our $FRITZBOX = 'http://fritz.box';
 Creates a new FRITZ!Box instance with an initial SID of C<0000000000000000>
 and a default user agent (see L<perldoc/LWP::UserAgent>).
 
-=back
-
 =cut
 
 sub new($$) {
@@ -178,6 +176,10 @@ sub fritzbox($$) {
 	}
 	use strict 'refs';
 }
+
+=back
+
+=cut
 
 
 1;
