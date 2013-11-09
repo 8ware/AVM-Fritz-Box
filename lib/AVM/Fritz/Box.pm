@@ -36,6 +36,10 @@ AVM::Fritz::Box - Perl interface to AVM's FRITZ!Box
 
 =head1 DESCRIPTION
 
+This module is the base for all functional extensions regarding the FRITZ!Box.
+It provides the basic operations like GET and POST requests and cares about
+several parameters (requests as well as responses).
+
 =head2 EXPORT
 
 None by default. The C<api> tag will import the C<fritzbox> subroutine which
@@ -217,10 +221,6 @@ sub fritzbox($$) {
 
 1;
 __END__
-
-=head1 SEE ALSO
-
-  http://www.avm.de/de/Extern/files/session_id/AVM_Technical_Note_-_Session_ID.pdf
 
 =head1 TODOs
 
