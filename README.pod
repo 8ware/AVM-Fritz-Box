@@ -1,0 +1,8 @@
+=pod
+
+=head1 NAME
+
+AVM-Fritz-Box - Perl interface to AVM's Fritz!Box
+
+=cut
+
