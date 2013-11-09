@@ -4,5 +4,15 @@
 
 AVM-Fritz-Box - Perl interface to AVM's Fritz!Box
 
+=head1 COMPATIBILITY
+
+This module was tested on following FRITZ!Box models and firmware versions:
+
+=over 4
+
+=item FRITZ!Box 7170, Firmware v29.04.87
+
+=back
+
 =cut
 
