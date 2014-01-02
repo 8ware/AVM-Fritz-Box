@@ -58,6 +58,7 @@ our $VERSION = '1.00';
 
 use Carp;
 use LWP::UserAgent;
+use XML::Simple 'xml_in';
 
 =head2 VARIABLES
 
@@ -154,8 +155,6 @@ sub post($$;$) {
 
 Returns the status line of the last request.
 
-=back
-
 =cut
 
 sub status($) {
@@ -163,6 +162,36 @@ sub status($) {
 
 	return $self->{status};
 }
+
+=item info()
+
+Returns information about the FRITZ!Box without requiring the password. In
+scalar context only the version number is returned while in list context all
+available information are delivered as hash with following keys:
+
+  Name, HW, Version, Revision, Serial, OEM, Lang, Annex, Lab, Country, Flag
+
+These keys may differ depending on the FRITZ!Box' firmware. To examine the
+available keys simply call http://fritz.box/jason_boxinfo.xml and evaluate
+the result (the keys' prefix is removed before returning the info-hash).
+
+=cut
+
+sub info($) {
+	my $self = shift;
+
+	my $response = $self->get("jason_boxinfo.xml");
+	my $xml = xml_in($response->decoded_content());
+
+	return wantarray
+			? map { s/^j:// ? ($_ => $xml->{"j:$_"}) : () } keys $xml
+			: $xml->{'j:Version'};
+}
+
+=back
+
+=cut
+
 
 =head2 API
 
