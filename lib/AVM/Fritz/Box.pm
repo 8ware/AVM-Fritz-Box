@@ -89,6 +89,7 @@ sub new($) {
 	my $self = {
 		sid => '0' x 16,
 		agent => LWP::UserAgent->new(),
+		reqtime => -10 * 60,
 	};
 
 	return bless $self, $class;
