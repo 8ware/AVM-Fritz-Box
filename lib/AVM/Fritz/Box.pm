@@ -51,7 +51,10 @@ more information consider the description of this subroutine somewhere below.
 use base 'Exporter';
 
 our %EXPORT_TAGS = ( 'api' => [ qw( fritzbox ) ] );
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'api'} } );
+our @EXPORT_OK = (
+	@{ $EXPORT_TAGS{'api'} },
+	qw( $FRITZBOX $INIT_REQTIME ),
+);
 
 our $VERSION = '1.00';
 
@@ -62,6 +65,10 @@ use XML::Simple 'xml_in';
 
 =head2 VARIABLES
 
+=over 4
+
+=item FRITZBOX
+
 The URL of the FRITZ!Box is stored in the public C<$FRITZBOX> variable and
 thus can be modified if e.g. the FRITZ!Box is only reachable under a certain
 IP or other domain. Simply define
@@ -71,6 +78,18 @@ IP or other domain. Simply define
 =cut
 
 our $FRITZBOX = 'http://fritz.box';
+
+=item INIT_REQTIME
+
+The initial value of the FRITZ!Box' C<reqtime> attribute defaults to 10min
+and is stored in the public variable C<$INIT_REQTIME>. This is the time the
+FRITZ!Box keeps the connection to an IP open w/o any transmission. If no
+request was sent to the FRITZ!Box the connection will be closed automatically
+after that time.
+
+=cut
+
+our $INIT_REQTIME = -10 * 60;
 
 =head2 METHODS
 
@@ -89,7 +108,7 @@ sub new($) {
 	my $self = {
 		sid => '0' x 16,
 		agent => LWP::UserAgent->new(),
-		reqtime => -10 * 60,
+		reqtime => $INIT_REQTIME,
 	};
 
 	return bless $self, $class;
