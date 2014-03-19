@@ -19,8 +19,8 @@ modules without send requests to a real FRITZ!Box
   $fritzbox = AVM::Fritz::Box->new();
   $fakeagent = AVM::Fritz::Box::Test::FakeAgent->init($fritzbox);
 
-  # set content of response
-  $fakeagent->content($content);
+  # set content of response for the (relative) URL
+  $fakeagent->content($url => $content);
 
   # request fake agent and evaluate result
   $response = $fritzbox->get($url, { param => $param });
@@ -159,12 +159,14 @@ sub params($;$) {
 
 =item $fakeagent->content([$content])
 
-Returns the content for the next response. The optional content argument
-sets the content attribute.
+Returns the content for the next response. At least one argument must be
+given representing the URL the content should be delivered for. Otherwise
+a hash must be passed containing mappings between requested URLs (relative
+to the root) and their contents.
 
 =cut
 
-sub content($;@) {
+sub content($@) {
 	my $self = shift;
 
 	if (@_ == 1) {
