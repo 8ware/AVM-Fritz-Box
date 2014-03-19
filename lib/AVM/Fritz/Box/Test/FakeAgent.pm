@@ -36,6 +36,7 @@ the FRITZ!Box.
 =cut
 
 
+use AVM::Fritz::Box '$FRITZBOX';
 use Carp;
 use HTTP::Response;
 use Test::Simple;
@@ -60,7 +61,7 @@ sub init($$) {
 	my $self = bless {
 		url => undef,
 		params => undef,
-		content => undef,
+		content => {},
 	}, $class;
 
 	$fritzbox->{agent} = $self;
@@ -87,7 +88,7 @@ sub get($$) {
 #	ok(defined $self->{params}->{sid});
 
 	my $response = HTTP::Response->new(200);
-	$response->content($self->content);
+	$response->content($self->content($url));
 
 	return $response;
 }
@@ -111,7 +112,7 @@ sub post($$$) {
 #	ok(defined $self->{params}->{sid});
 
 	my $response = HTTP::Response->new(200);
-	$response->content($self->content);
+	$response->content($self->content($url));
 
 	return $response;
 }
@@ -163,17 +164,21 @@ sets the content attribute.
 
 =cut
 
-sub content($;$) {
+sub content($;@) {
 	my $self = shift;
-	my $content = shift;
 
-	if ($content) {
-		$self->{content} = $content;
-	} elsif (not $self->{content}) {
-		carp("content was not set, yet");
+	if (@_ == 1) {
+		my $url = shift;
+		return $self->{content}->{$url};
+	} else {
+		carp("Odd number of elements in hash assignment") unless @_ % 2 == 0;
+		$self->{content} = {
+			%{$self->{content}},
+			map { $_ *= 2; "$FRITZBOX/$_[$_]" => $_[$_+1] } 0 .. $#_/2,
+		};
 	}
 
-	return $self->{content};
+	return;
 }
 
 =back

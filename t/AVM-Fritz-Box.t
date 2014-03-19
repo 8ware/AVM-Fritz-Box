@@ -15,7 +15,7 @@ use AVM::Fritz::Box::Test::FakeAgent;
 my $fritzbox = AVM::Fritz::Box->new();
 
 my $agent = AVM::Fritz::Box::Test::FakeAgent->init($fritzbox);
-$agent->content(join "\n", <DATA>);
+$agent->content("jason_boxinfo.xml" => join "\n", <DATA>);
 
 
 is(scalar $fritzbox->info(), "29.04.87",
