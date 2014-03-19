@@ -247,6 +247,8 @@ is usual.
       return $resp->is_success();
   }; # <-- DONT FORGET THE SEMICOLON!
 
+See the C<AVM::Fritz::Box::Session> module for a more extensive example.
+
 =cut
 
 sub fritzbox($$) {

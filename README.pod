@@ -2,7 +2,17 @@
 
 =head1 NAME
 
-AVM-Fritz-Box - Perl interface to AVM's Fritz!Box
+AVM-Fritz-Box - Perl interface to AVM's FRITZ!Box
+
+=head1 MODULES
+
+=over 4
+
+=item AVM::Fritz::Box::Session
+
+Provides an interface to the session management of the FRITZ!Box.
+
+=back
 
 =head1 COMPATIBILITY
 
